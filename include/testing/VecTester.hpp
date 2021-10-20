@@ -25,6 +25,7 @@ namespace vec {
 		test(oRange.capacity() == ftRange.capacity() && oRange.size() == ftRange.size());
 		test(oCopy.capacity() == ftCopy.capacity() && oCopy.size() == ftCopy.size());
 		endTest();
+
 	}
 
 	void testDestructors() {
@@ -202,11 +203,6 @@ namespace vec {
 
 		endTest();
 	}
-
-
-
-
-
 }
 
 #endif

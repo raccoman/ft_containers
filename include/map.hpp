@@ -6,37 +6,6 @@
 
 namespace ft {
 
-	template<typename T>
-	class map_iterator {
-
-	public:
-		typedef T                                                     		iterator_type;
-		typedef typename iterator_traits<iterator_type>::iterator_category	iterator_category;
-		typedef typename iterator_traits<iterator_type>::value_type        	value_type;
-		typedef typename iterator_traits<iterator_type>::difference_type   	difference_type;
-		typedef typename iterator_traits<iterator_type>::pointer           	pointer;
-		typedef typename iterator_traits<iterator_type>::reference         	reference;
-
-	protected:
-		pointer	ptr;
-
-	public:
-		map_iterator() : ptr(nullptr) {}
-		map_iterator(pointer ptr) : ptr(ptr) {}
-		map_iterator(const map_iterator& other) : ptr(other.ptr) {}
-		virtual ~map_iterator() {}
-
-		map_iterator& operator=(const map_iterator& other) { this->ptr = other.ptr; return *this; }
-		reference operator*() { return *this->ptr; }
-		pointer operator->() { return this->ptr; }
-		map_iterator operator++(int) { map_iterator tmp(*this); ++this->ptr; return tmp; }
-		map_iterator& operator++() { ++this->ptr; return *this; }
-		map_iterator operator--(int) { map_iterator tmp(*this); --this->ptr; return tmp; }
-		map_iterator& operator--() { --this->ptr; return *this; }
-		bool operator==(const map_iterator& other) const { return this->ptr == other.ptr; }
-		bool operator!=(const map_iterator& other) const { return this->ptr != other.ptr; }
-	};
-
 	template<
 	        class Key,
 			class T,
@@ -61,8 +30,93 @@ namespace ft {
 		typedef map_iterator<const value_type>			const_iterator;
 		typedef ft::reverse_iterator<iterator>			reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef RBNode<value_type>*						node_pointer;
+
+		class value_compare: public ft::binary_function<value_type, value_type, bool> {
+		protected:
+			key_compare comp;
+		public:
+
+			value_compare(): comp() {}
+			value_compare(key_compare c): comp(c) {}
+
+			bool operator()(value_type& lhs, value_type& rhs) {
+				return comp(lhs.first, rhs.first);
+			}
+
+			bool operator()(const value_type& lhs, const value_type& rhs) const {
+				return comp(lhs.first, rhs.first);
+			}
+
+		};
 
 	protected:
+		RBTree<value_type, value_compare>*	_tree;
+		key_compare							_comparator;
+		allocator_type						_allocator;
+		size_type							_size;
+
+	public:
+
+		map() : _allocator(Allocator()), _size(0) {
+			_tree = new RBTree<value_type, value_compare>;
+		}
+
+		explicit map(const Compare& comp, const Allocator& alloc = Allocator()) : _comparator(comp), _allocator(alloc), _size(0) {
+			_tree = new RBTree<value_type, value_compare>;
+		}
+
+		template<class InputIt>
+		map(InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator()) : _comparator(comp), _allocator(alloc) {
+			_tree = new RBTree<value_type, value_compare>;
+			_size = last - first;
+			while (first != last)
+				_tree->insert(*first++);
+		}
+
+		~map() {
+			clear();
+			delete _tree;
+		}
+
+		map& operator=(const map& other) {
+			clear();
+			//TODO: Iterate elements, copy and insert them into the tree
+			return *this;
+		}
+
+		allocator_type get_allocator() const {
+			return _allocator;
+		}
+
+		T& at(const Key& key) {
+			node_pointer res = _tree->find(key);
+			if (res == nullptr) return res;
+			return res->data.second;
+		}
+
+		const T& at(const Key& key) const {
+			node_pointer res = _tree->find(key);
+			if (res == nullptr) return res;
+			return res->data.second;
+		}
+
+		T& operator[](const Key& key) {
+			node_pointer res = _tree->find(key);
+			if (res != nullptr)
+				return res->data.second;
+			return insert(ft::make_pair(key, T())).first->second;
+		}
+
+		iterator begin() {
+
+		}
+
+		void clear() {
+			_size = 0;
+			_tree->clear();
+		}
+
 
 
 	};

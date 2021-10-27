@@ -3,6 +3,13 @@
 
 namespace ft {
 
+	template<typename T, typename U, typename R>
+	struct binary_function {
+		typedef T 	first_argument_type;
+		typedef U 	second_argument_type;
+		typedef R 	result_type;
+	};
+
 	template<class T>
 	const T& min(const T& a, const T& b) {
 		return (a < b ? a : b);

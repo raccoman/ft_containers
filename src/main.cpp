@@ -23,29 +23,10 @@ int main() {
 
 	ft::RBTree<int> test;
 
-	for (int i = 0; i < 15; ++i)
-		test.insert(i + i * 4);
+	for (int i = 0; i < 20; ++i)
+		test.insert( i + i * 4);
 
 	test.print_tree();
-
-
-	/*
-
-				10N
-		2N				12R
-	0R		4R		11N		20N
-						 		60R
-
-	Dopo
-	 					10N
-			2N						12R
-	 0R				4R		11N				60
-	 									20
-
-
-
-	 */
-
 
 
 }

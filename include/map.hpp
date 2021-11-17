@@ -26,10 +26,10 @@ namespace ft {
 		typedef const value_type&						const_reference;
 		typedef typename Allocator::pointer				pointer;
 		typedef typename Allocator::const_pointer		const_pointer;
-		typedef map_iterator<value_type>				iterator;
+		/*typedef map_iterator<value_type>				iterator;
 		typedef map_iterator<const value_type>			const_iterator;
 		typedef ft::reverse_iterator<iterator>			reverse_iterator;
-		typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;*/
 		typedef RBNode<value_type>*						node_pointer;
 
 		class value_compare: public ft::binary_function<value_type, value_type, bool> {
@@ -108,9 +108,9 @@ namespace ft {
 			return insert(ft::make_pair(key, T())).first->second;
 		}
 
-		iterator begin() {
-
-		}
+		//iterator begin() {
+//
+//		}
 
 		void clear() {
 			_size = 0;

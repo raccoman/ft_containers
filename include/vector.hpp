@@ -5,6 +5,7 @@
 #include <iterator.hpp>
 #include <algorithm.hpp>
 #include <iostream>
+#include <unistd.h>
 
 namespace ft {
 
@@ -47,6 +48,7 @@ namespace ft {
 		bool operator<=(const vector_iterator& other) const { return this->ptr <= other.ptr; }
 		bool operator>(const vector_iterator& other) const { return this->ptr > other.ptr; }
 		bool operator>=(const vector_iterator& other) const { return this->ptr >= other.ptr; }
+		pointer base() { return this->ptr; };
 
 	};
 
@@ -60,8 +62,8 @@ namespace ft {
 		typedef typename allocator_type::const_reference			const_reference;
 		typedef typename allocator_type::pointer					pointer;
 		typedef typename allocator_type::const_pointer				const_pointer;
-		typedef vector_iterator<pointer>							iterator;
-		typedef vector_iterator<const_pointer>						const_iterator;
+		typedef vector_iterator<value_type>							iterator;
+		typedef vector_iterator<value_type>							const_iterator;
 		typedef ft::reverse_iterator<const_iterator>				const_reverse_iterator;
 		typedef ft::reverse_iterator<iterator>						reverse_iterator;
 		typedef typename iterator_traits<iterator>::difference_type	difference_type;
@@ -115,10 +117,13 @@ namespace ft {
 		}
 
 		template <typename U>
-		void assign(U first, U last) {
+		void assign(U first, U last, typename ft::enable_if<!ft::is_integral<U>::value, U>::type* = 0) {
 
 			this->clear();
-			_size = last - first;
+
+			for(U tmp = first; tmp != last; tmp++)
+				_size++;
+
 			if (_size > _capacity) {
 				this->deallocate();
 				_capacity = _size;
@@ -131,7 +136,6 @@ namespace ft {
 				first++;
 				i++;
 			}
-
 		}
 
 		void assign(size_type n, const value_type& val) {
@@ -188,11 +192,11 @@ namespace ft {
 		}
 
 		reverse_iterator rbegin() {
-			return reverse_iterator(end() - 1);
+			return reverse_iterator(end());
 		}
 
 		const_reverse_iterator rbegin() const {
-			return const_reverse_iterator(end() - 1);
+			return const_reverse_iterator(end());
 		}
 
 		reverse_iterator rend() {
@@ -300,20 +304,24 @@ namespace ft {
 		}
 
 		template <class U>
-		void insert(iterator position, U first, U last) {
-			vector tmp(this);
+		void insert(iterator position, U first, U last, typename ft::enable_if<!ft::is_integral<U>::value, U>::type* = 0) {
+			vector tmp(*this);
 
-			size_type n = last - first;
-			this->reserve(_size + n);
+			size_type n = 0;
+			for(U it = first; it != last; it++)
+				n++;
 
 			size_type i = position - begin();
 
-			for (size_type j = i; j < i + n; ++j)
-				_allocator.construct(_container + j, *first++);
-			for (size_type j = i + n; j < _size + n; ++j)
-				_allocator.construct(_container + j, tmp[j - n]);
+			this->reserve(_size + n);
 
 			_size += n;
+
+			for (size_type j = i; j < i + n; ++j)
+				_allocator.construct(_container + j, *first++);
+
+			for (size_type j = i + n; j < _size; ++j)
+				_allocator.construct(_container + j, tmp[j - n]);
 		}
 
 		iterator erase(iterator position) {
@@ -331,7 +339,7 @@ namespace ft {
 
 		iterator erase(iterator first, iterator last) {
 
-			vector<T> tmp(*this);
+			vector tmp(*this);
 
 			size_type i = first - begin();
 			size_type n = last - first;
@@ -340,10 +348,11 @@ namespace ft {
 				_allocator.destroy(&_container[j]);
 
 			for (size_type j = i + n; j < _size; ++j)
-				_allocator.construct(_container + (j - n), tmp[j]);
+				_allocator.construct(_container + (j - n), tmp[j]); // 1 2 3 4 5 6 7 8 9 10 11 12
+																	// 4 5 6 7 8 9 10 11 12
 
 			_size -= n;
-			return last;
+			return first;
 		}
 
 		void swap(vector& other) {

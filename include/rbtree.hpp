@@ -86,7 +86,7 @@ namespace ft {
 				parent = *current;
 
 				if (!_comparator(x->data, parent->data) && !_comparator(parent->data, x->data)) {
-					parent->data = x->data; //REPLACE
+					parent->data = x->data; //TODO: To see / REPLACE
 					break;
 				}
 				else if (_comparator(x->data, parent->data))

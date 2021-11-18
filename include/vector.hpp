@@ -30,25 +30,30 @@ namespace ft {
 		virtual ~vector_iterator() {}
 
 		vector_iterator& operator=(const vector_iterator& other) { this->ptr = other.ptr; return *this; }
+
 		reference operator*() { return *this->ptr; }
 		pointer operator->() { return this->ptr; }
-		reference operator[](int index) { return *(this->ptr + index); }
+
+		reference operator[](size_t index) { return reference(*(this->ptr + index)); }
+
 		vector_iterator operator++(int) { vector_iterator tmp(*this); ++this->ptr; return tmp; }
 		vector_iterator& operator++() { ++this->ptr; return *this; }
 		vector_iterator operator--(int) { vector_iterator tmp(*this); --this->ptr; return tmp; }
 		vector_iterator& operator--() { --this->ptr; return *this; }
-		vector_iterator& operator+=(int value) { this->ptr += value; return *this; }
-		vector_iterator operator+(int value) const { vector_iterator tmp(*this); return tmp += value; }
-		vector_iterator& operator-=(int value) { this->ptr -= value; return *this; }
-		vector_iterator operator-(int value) const { vector_iterator tmp(*this); return tmp -= value; }
+
+		vector_iterator operator+=(difference_type n) { ptr += n; return vector_iterator(ptr); }
+		vector_iterator operator+(difference_type n) const { return vector_iterator(ptr + n); }
+		vector_iterator operator-=(difference_type n) { ptr -= n; return vector_iterator(ptr); }
+		vector_iterator operator-(difference_type n) const { return vector_iterator(ptr - n); }
+
 		difference_type operator-(const vector_iterator& other) const { return this->ptr - other.ptr; }
+
 		bool operator==(const vector_iterator& other) const { return this->ptr == other.ptr; }
 		bool operator!=(const vector_iterator& other) const { return this->ptr != other.ptr; }
 		bool operator<(const vector_iterator& other) const { return this->ptr < other.ptr; }
 		bool operator<=(const vector_iterator& other) const { return this->ptr <= other.ptr; }
 		bool operator>(const vector_iterator& other) const { return this->ptr > other.ptr; }
 		bool operator>=(const vector_iterator& other) const { return this->ptr >= other.ptr; }
-		pointer base() { return this->ptr; };
 
 	};
 
@@ -63,7 +68,7 @@ namespace ft {
 		typedef typename allocator_type::pointer					pointer;
 		typedef typename allocator_type::const_pointer				const_pointer;
 		typedef vector_iterator<value_type>							iterator;
-		typedef vector_iterator<value_type>							const_iterator;
+		typedef vector_iterator<const value_type>					const_iterator;
 		typedef ft::reverse_iterator<const_iterator>				const_reverse_iterator;
 		typedef ft::reverse_iterator<iterator>						reverse_iterator;
 		typedef typename iterator_traits<iterator>::difference_type	difference_type;
@@ -284,16 +289,17 @@ namespace ft {
 		}
 
 		iterator insert(iterator position, const value_type& val) {
+			size_type i = position - begin();
 			this->insert(position, 1, val);
-			return ++position;
+			return iterator(_container + i);
 		}
 
 		void insert(iterator position, size_type n, const value_type& val) {
 			vector<T> tmp(*this);
 
-			this->reserve(_size + n);
-
 			size_type i = position - begin();
+
+			this->reserve(_size + n);
 
 			for (size_type j = i; j < i + n; ++j)
 				_allocator.construct(_container + j, val);

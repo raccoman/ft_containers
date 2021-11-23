@@ -3,7 +3,13 @@
 #include <testing/MapTester.hpp>
 #include <rbtree.hpp>
 
+#include <vector>
+
 int main() {
+
+	std::vector<const int> ric;
+
+	ric.begin();
 
 	std::cout << "========== VECTOR ==========" << std::endl;
 	vec::testConstructors();

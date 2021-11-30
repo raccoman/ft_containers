@@ -1,7 +1,34 @@
 #ifndef FT_CONTAINERS_ALGORITHM_HPP
 #define FT_CONTAINERS_ALGORITHM_HPP
 
+#include <type_traits>
+
 namespace ft {
+
+	template<typename T, bool isConst>
+	struct apply_const {
+		typedef T	type;
+	};
+
+	template<typename T>
+	struct apply_const<T, true> {
+		typedef typename std::add_const<T>::type	type;
+	};
+
+	template<typename T, typename U, typename R>
+	struct binary_function {
+		typedef T 	first_argument_type;
+		typedef U 	second_argument_type;
+		typedef R 	result_type;
+	};
+
+	template<typename T>
+	struct less: public binary_function<T, T, bool>
+	{
+		bool operator()(const T& x, const T& y) const {
+			return x < y;
+		}
+	};
 
 	template <typename _Tp, _Tp __v>
 	struct integral_constant
@@ -66,13 +93,6 @@ namespace ft {
 
 	template<class T>
 	struct enable_if<true, T> { typedef T type; };
-
-	template<typename T, typename U, typename R>
-	struct binary_function {
-		typedef T 	first_argument_type;
-		typedef U 	second_argument_type;
-		typedef R 	result_type;
-	};
 
 	template<class T>
 	const T& min(const T& a, const T& b) {

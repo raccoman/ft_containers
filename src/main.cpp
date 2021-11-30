@@ -1,12 +1,8 @@
-#include <testing/VecTester.hpp>
-#include <testing/StackTester.hpp>
-#include <testing/MapTester.hpp>
-#include <rbtree.hpp>
-
-#include <vector>
+#include "map.hpp"
+#include <map>
 
 int main() {
-
+/*
 	std::vector<const int> ric;
 
 	ric.begin();
@@ -32,7 +28,13 @@ int main() {
 	for (int i = 0; i < 20; ++i)
 		test.insert( i + i * 4);
 
-	test.print_tree();
+	test.print_tree();*/
 
+#define NAMESPACE std
 
+	NAMESPACE::map<int, const char *> sium;
+	NAMESPACE::pair<NAMESPACE::map<int, const char *>::iterator, bool> ret;
+
+	ret = sium.insert(NAMESPACE::make_pair(10, "COCAINA"));
+	ret = sium.insert(NAMESPACE::make_pair(10, "COCAINAAAA"));
 }

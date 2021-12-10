@@ -327,8 +327,6 @@ namespace ft {
 				node_pointer sibling = _root;
 				if (node->parent->left == node) {
 
-
-
 					if (node->parent->right) { sibling = node->parent->right; }
 					if (sibling) {
 
@@ -376,12 +374,12 @@ namespace ft {
 							if (sibling->left == nullptr && (sibling->right == nullptr || sibling->right->isDoubleBlack())) {
 								sibling->color = RED;
 								node = node->parent;
-							} else if (sibling->left->color == BLACK && sibling->right->color == BLACK) {
+							} else if (sibling->left && sibling->left->color == BLACK && sibling->right && sibling->right->color == BLACK) {
 								sibling->color = RED;
 								node = node->parent;
 							}
 								//CASE -- 3
-							else if (sibling->left->color == BLACK) {
+							else if (sibling->left && sibling->left->color == BLACK) {
 								sibling->right->color = BLACK;
 								sibling->color = RED;
 								rotateLeft(sibling);

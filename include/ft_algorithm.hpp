@@ -1,19 +1,20 @@
-#ifndef FT_CONTAINERS_ALGORITHM_HPP
-#define FT_CONTAINERS_ALGORITHM_HPP
+#ifndef FT_CONTAINERS_FT_ALGORITHM_HPP
+#define FT_CONTAINERS_FT_ALGORITHM_HPP
 
 #include <type_traits>
+#include <algorithm>
 
 namespace ft {
 
-	template<typename T, bool isConst>
-	struct apply_const {
-		typedef T	type;
-	};
-
-	template<typename T>
-	struct apply_const<T, true> {
-		typedef typename std::add_const<T>::type	type;
-	};
+	template <class U, class X>
+	bool equal(U lit, U lend, X rit, X rend) {
+		while (lit != lend) {
+			if (rit == rend || *rit != *lit)
+				return (false);
+			++lit, ++rit;
+		}
+		return (rit == rend);
+	}
 
 	template<typename T, typename U, typename R>
 	struct binary_function {
@@ -149,7 +150,7 @@ namespace ft {
 
 	template<class T1, class T2>
 	bool operator==(const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs) {
-		return lhs.first == rhs.first && lhs.second == rhs.second;
+		return lhs.first == rhs.first;
 	}
 
 	template<class T1, class T2>

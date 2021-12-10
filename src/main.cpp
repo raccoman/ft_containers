@@ -30,11 +30,9 @@ int main() {
 
 	test.print_tree();*/
 
-#define NAMESPACE std
+	ft::map<int, const char *> mp;
+	ft::map<int, const char *> mp2;
 
-	NAMESPACE::map<int, const char *> sium;
-	NAMESPACE::pair<NAMESPACE::map<int, const char *>::iterator, bool> ret;
+	mp.swap(mp2);
 
-	ret = sium.insert(NAMESPACE::make_pair(10, "COCAINA"));
-	ret = sium.insert(NAMESPACE::make_pair(10, "COCAINAAAA"));
 }

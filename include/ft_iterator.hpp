@@ -1,7 +1,7 @@
-#ifndef FT_CONTAINERS_ITERATOR_HPP
-#define FT_CONTAINERS_ITERATOR_HPP
+#ifndef FT_CONTAINERS_FT_ITERATOR_HPP
+#define FT_CONTAINERS_FT_ITERATOR_HPP
 
-#include <algorithm.hpp>
+#include <ft_algorithm.hpp>
 
 namespace ft {
 

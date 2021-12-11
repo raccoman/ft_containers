@@ -38,7 +38,7 @@ namespace ft {
 		reference operator*() { return *this->ptr; }
 		pointer operator->() { return this->ptr; }
 
-		reference operator[](size_t index) { return reference(*(this->ptr + index)); }
+		reference operator[](difference_type n) const { return reference(*(ptr + n)); }
 
 		vector_iterator operator++(int) { vector_iterator tmp(*this); ++this->ptr; return tmp; }
 		vector_iterator& operator++() { ++this->ptr; return *this; }

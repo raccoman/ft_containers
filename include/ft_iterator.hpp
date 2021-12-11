@@ -64,11 +64,15 @@ namespace ft {
 		reverse_iterator(const T& other) { current = other; }
 		template<typename X>
 		reverse_iterator(const reverse_iterator<X>& other) { *this = other; }
+
 		template<typename X>
 		reverse_iterator& operator=(const reverse_iterator<X>& other) { current = other.base(); return *this; }
 
 		reference operator*() { T tmp = current; return *--tmp; }
 		pointer operator->() { T tmp = current; --tmp; return tmp.operator->(); }
+
+		reference operator*() const { T tmp = current; return *--tmp; }
+		pointer operator->() const { T tmp = current; --tmp; return tmp.operator->(); }
 
 		reverse_iterator& operator++() { --current; return *this; }
 		reverse_iterator& operator--() { ++current; return *this; }

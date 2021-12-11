@@ -77,6 +77,7 @@ namespace ft {
 		typedef typename iterator_traits<iterator_type>::difference_type	difference_type;
 		typedef typename iterator_traits<iterator_type>::pointer			pointer;
 		typedef typename iterator_traits<iterator_type>::reference			reference;
+		typedef typename iterator_traits<iterator_type>::iterator_category	iterator_category;
 		typedef RBNode<value_type>*											node_pointer;
 
 	protected:
@@ -110,7 +111,7 @@ namespace ft {
 					ptr = ptr->left;
 			} else {
 				while (ptr->parent) {
-					if (!compare(ptr->parent->data, ptr->data) && ptr->parent->data != ptr->data) {
+					if (!ptr->isDoubleBlack() && !compare(ptr->parent->data, ptr->data) && ptr->parent->data != ptr->data) {
 						ptr = ptr->parent;
 						return (*this);
 					}
@@ -131,7 +132,7 @@ namespace ft {
 
 			if (ptr->left) {
 				ptr = ptr->left;
-				while (ptr->right)
+				while (ptr->right && !ptr->right->isDoubleBlack())
 					ptr = ptr->right;
 			} else {
 
@@ -475,10 +476,8 @@ namespace ft {
 				current = current->left;
 			_start = current;
 
-			if (!_end) {
-				_end = _allocator.allocate(1);
+			if (!_end)
 				_allocator.construct(_end, node_type(value_type(), DOUBLE_BLACK));
-			}
 
 			current = _root;
 			while (current->right != nullptr && !current->right->isDoubleBlack())
@@ -489,7 +488,10 @@ namespace ft {
 
 	public:
 		RBTree(const allocator_type &alloc = allocator_type())
-				: _root(nullptr), _allocator(alloc), _end(nullptr), _start(nullptr) {}
+				: _root(nullptr), _allocator(alloc), _end(nullptr), _start(nullptr) {
+			_end = _allocator.allocate(1);
+			_allocator.construct(_end, node_type(value_type(), DOUBLE_BLACK));
+		}
 
 		~RBTree() {
 			_allocator.destroy(_end);
@@ -547,18 +549,13 @@ namespace ft {
 			//return;
 			std::cout << NORMAL << "===============================" << std::endl;
 			_print_tree(_root);
-			std::cout << NORMAL << "END NODE AFTER: " << _end->parent->data.first << std::endl;
+			std::cout << NORMAL << "END NODE AFTER: " << _end->parent->data << std::endl;
 			std::cout << NORMAL << "===============================" << std::endl;
 		}
 
 		void _print_tree(node_pointer n, size_t l = 0) {
 
-			if (!n) {
-				std::cout << std::endl;
-				return;
-			}
-
-			if (n->isDoubleBlack()) {
+			if (!n || n->isDoubleBlack()) {
 				std::cout << std::endl;
 				return;
 			}
@@ -567,13 +564,13 @@ namespace ft {
 			std::string coll = n->isRed() ? BOLD_RED : NORMAL;
 			std::cout << coll << std::string(l * 4, ' ');
 			if (n->parent) {
-				std::cout << "(" << n->parent->data.first << ")";
+				std::cout << "(" << n->parent->data << ")";
 				if (n->isLeft())
 					std::cout << "\\";
 				else
 					std::cout << "/";
 			}
-			std::cout << n->data.first << NORMAL;
+			std::cout << n->data << NORMAL;
 			_print_tree(n->left, l + 1);
 		}
 

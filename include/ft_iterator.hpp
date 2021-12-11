@@ -89,7 +89,7 @@ namespace ft {
 
 	template<class U, class X>
 	typename reverse_iterator<U>::difference_type operator-(const reverse_iterator<U>& lhs, const reverse_iterator<X>& rhs) {
-		return lhs.base() - rhs.base();
+		return -(lhs.base() - rhs.base());
 	}
 
 	template <typename U, typename X>

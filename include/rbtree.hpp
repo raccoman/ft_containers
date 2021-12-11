@@ -260,6 +260,40 @@ namespace ft {
 			return height;
 		}
 
+		void fixDependencies(node_pointer node) {
+			if (node->left)
+				node->left->parent = node;
+			if (node->right)
+				node->right->parent = node;
+		}
+		node_pointer* selfParentPtr(node_pointer node) {
+			if (!node->parent)
+				return &_root;
+			else if (node->isLeft())
+				return &node->parent->left;
+			else if (node->isRight())
+				return &node->parent->right;
+			throw std::exception();
+		}
+		void swapNode(node_pointer lhs, node_pointer rhs) {
+			*selfParentPtr(lhs) = rhs;
+			*selfParentPtr(rhs) = lhs;
+			std::swap(lhs->parent, rhs->parent);
+			std::swap(lhs->left, rhs->left);
+			std::swap(lhs->right, rhs->right);
+			std::swap(lhs->color, rhs->color);
+			fixDependencies(lhs);
+			fixDependencies(rhs);
+		}
+		node_pointer replaceNodeWithLoneChild(node_pointer a, node_pointer b) {
+			if (b->parent != a) throw std::exception();
+			if (a->left && a->right) throw std::exception();
+			if (!a->left && !a->right) throw std::exception();
+			b->parent = a->parent;
+			*selfParentPtr(a) = b;
+			return b;
+		}
+
 		void fixInsertRBTree(node_pointer ptr) {
 			node_pointer parent = nullptr;
 			node_pointer grandparent = nullptr;
@@ -322,135 +356,96 @@ namespace ft {
 		}
 
 		void fixDeleteRBTree(node_pointer node) {
+			if (node->parent) {							// case 1
+				if (node->sibling() && node->sibling()->color == RED) 		// case 2
+				{
+					node->parent->color = RED;
+					node->sibling()->color = BLACK;
+					if (node->isLeft())
+						rotateLeft(node->parent);
+					else
+						rotateRight(node->parent);
+				}
+				if (node->parent->color == BLACK && node->sibling() &&		// case 3
+					node->sibling()->color == BLACK &&
+					(!node->sibling()->left || node->sibling()->left->color == BLACK) &&
+					((!node->sibling()->right || node->sibling()->right->isDoubleBlack()) || node->sibling()->right->color == BLACK))
+				{
+					node->sibling()->color = RED;
+					fixDeleteRBTree(node->parent);
+				}
+				else if (node->parent->color == RED && node->sibling() &&		// case 4
+						 node->sibling()->color == BLACK &&
+						 (!node->sibling()->left || node->sibling()->left->color == BLACK) &&
+						 ((!node->sibling()->right || node->sibling()->right->isDoubleBlack()) || node->sibling()->right->color == BLACK))
+				{
+					node->sibling()->color = RED;
+					node->parent->color = BLACK;
+				}
+				else if (node->isLeft() && node->sibling() &&				// case 5
+						 node->sibling()->color == BLACK &&
+						 node->sibling()->left && node->sibling()->left->color == RED &&
+						 ((!node->sibling()->right || node->sibling()->right->isDoubleBlack()) || node->sibling()->right->color == BLACK))
+				{
+					node->sibling()->color = RED;
+					node->sibling()->left->color = BLACK;
+					rotateRight(node->sibling());
+				}
+				else if (node->isRight() && node->sibling() &&			// still case 5
+						 node->sibling()->color == BLACK &&
+						 node->sibling()->right && !node->sibling()->right->isDoubleBlack() && node->sibling()->right->color == RED &&
+						 (!node->sibling()->left || node->sibling()->left->color == BLACK))
+				{
+					node->sibling()->color = RED;
+					node->sibling()->right->color = BLACK;
+					rotateLeft(node->sibling());
+				}
+				if (node->sibling())
+					node->sibling()->color = node->parent->color; // case 6
+				node->parent->color = BLACK;
 
-			while (node->data != _root->data && node->color == BLACK) {
-
-				node_pointer sibling = _root;
-				if (node->parent->left == node) {
-
-					if (node->parent->right) { sibling = node->parent->right; }
-					if (sibling) {
-
-						//CASE -- 1
-						if (sibling->color == RED) {
-							sibling->color = BLACK;
-							node->parent->color = RED;
-							rotateLeft(node->parent);
-							sibling = node->parent->right;
-						}
-						//CASE -- 2
-						if (sibling->left == nullptr && (sibling->right == nullptr || sibling->right->isDoubleBlack())) {
-							sibling->color = RED;
-							node = node->parent;
-						} else if (sibling->left != nullptr && sibling->left->color == BLACK && sibling->right->color == BLACK) {
-							sibling->color = RED;
-							node = node->parent;
-						}
-							//CASE -- 3
-						else if (sibling->right->color == BLACK) {
-							sibling->left->color = BLACK;
-							sibling->color = RED;
-							rotateRight(sibling);
-							sibling = node->parent->right;
-						} else {
-							sibling->color = node->parent->color;
-							node->parent->color = BLACK;
-							if (sibling->right) { sibling->right->color = BLACK; }
-							rotateLeft(node->parent);
-							node = _root;
-						}
+				if (node->sibling()) {
+					if (node->isLeft()) {
+						if (node->sibling()->right && !node->sibling()->right->isDoubleBlack())
+							node->sibling()->right->color = BLACK;
+						rotateLeft(node->parent);
+					} else {
+						if (node->sibling()->right && !node->sibling()->right->isDoubleBlack())
+							node->sibling()->left->color = BLACK;
+						rotateRight(node->parent);
 					}
-				} else {
-					if (node->parent->right == node) {
-						if (node->parent->left) { sibling = node->parent->left; }
-						if (sibling) {
-							//CASE -- 1
-							if (sibling->color == RED) {
-								sibling->color = BLACK;
-								node->parent->color = RED;
-								rotateRight(node->parent);
-								sibling = node->parent->left;
-							}
-							//CASE -- 2
-							if (sibling->left == nullptr && (sibling->right == nullptr || sibling->right->isDoubleBlack())) {
-								sibling->color = RED;
-								node = node->parent;
-							} else if (sibling->left && sibling->left->color == BLACK && sibling->right && sibling->right->color == BLACK) {
-								sibling->color = RED;
-								node = node->parent;
-							}
-								//CASE -- 3
-							else if (sibling->left && sibling->left->color == BLACK) {
-								sibling->right->color = BLACK;
-								sibling->color = RED;
-								rotateLeft(sibling);
-								sibling = node->parent->left;
-							} else {
-								sibling->color = node->parent->color;
-								node->parent->color = BLACK;
-								if (sibling->left) { sibling->left->color = BLACK; }
-								rotateRight(node->parent);
-								node = _root;
-							}
-						}
-					}
-
 				}
 			}
-			node->color = BLACK;
 		}
 
-		void deleteBST(node_pointer parent, node_pointer node, value_type data) {
+		void deleteBST(node_pointer node) {
 
-			if (!node || node->isDoubleBlack()) return;
+			if (!node->parent && !node->left && (!node->right || node->right->isDoubleBlack()))
+				_root = NULL;
 
-			//CASE -- 1
-			if (node->left == nullptr && (node->right == nullptr || node->right->isDoubleBlack())) {
+			else if (!node->left && (!node->right || node->right->isDoubleBlack())) {
 
-				if (node->data == _root->data) {
-					_root = nullptr;
-				}
+				if (node->isLeft())
+					node->parent->left = NULL;
+				else
+					node->parent->right = NULL;
 
-				else if (parent->right == node) {
-					fixDeleteRBTree(node);
-					parent->right = nullptr;
-				} else {
-					fixDeleteRBTree(node);
-					parent->left = nullptr;
-				}
+			} else if (node->left && node->right && !node->right->isDoubleBlack()) {
+
+				node_pointer min = minValueNode(node->right);
+				swapNode(node, min);
+				deleteBST(node);
+
+			} else if (!node->left) {
+
+				node = replaceNodeWithLoneChild(node, node->right);
+				fixDeleteRBTree(node);
+
+			} else if (!node->right || node->right->isDoubleBlack()) {
+				node = replaceNodeWithLoneChild(node, node->left);
+				fixDeleteRBTree(node);
 			}
-				//CASE -- 2
-			else if (node->left != nullptr && (node->right == nullptr || node->right->isDoubleBlack())) {
 
-				value_type swap = node->data;
-				_allocator.construct(node, RBNode<T>(*node, node->left->data));
-				_allocator.construct(node->left, RBNode<T>(*(node->left), swap));
-				deleteBST(node, node->left, data);
-
-			} else if (node->left == nullptr && node->right != nullptr && !node->right->isDoubleBlack()) {
-
-				value_type swap = node->data;
-				_allocator.construct(node, RBNode<T>(*node, node->right->data));
-				_allocator.construct(node->right, RBNode<T>(*(node->right), swap));
-				deleteBST(node, node->right, data);
-			}
-				//CASE -- 3
-			else {
-
-				bool flag = false;
-				node_pointer temp = node->right;
-				while (temp->left) {
-					flag = true;
-					parent = temp;
-					temp = temp->left;
-				}
-				if (!flag) { parent = node; }
-
-				value_type swap = node->data;
-				_allocator.construct(node, RBNode<T>(*node, temp->data));
-				_allocator.construct(temp, RBNode<T>(*temp, swap));
-				deleteBST(parent, temp, swap);
-			}
 		}
 
 		void covid19(node_pointer node) {
@@ -510,7 +505,7 @@ namespace ft {
 
 		void remove(node_pointer node) {
 			if (!node) return;
-			deleteBST(node->parent, node, node->data);
+			deleteBST(node);
 			fixSEPoints();
 		}
 
